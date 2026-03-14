@@ -154,7 +154,7 @@ def main():
         try:
             return positive_int(value)
         except (TypeError, ValueError):
-            raise argparse.ArgumentTypeError('interval 必须是正整数')
+            raise argparse.ArgumentTypeError('interval must be a positive integer')
     
     parser = argparse.ArgumentParser(description='Git仓库自动更新工具')
     parser.add_argument('repo_path', help='本地仓库路径')
@@ -166,7 +166,7 @@ def main():
     
     args = parser.parse_args()
     
-    updater = GitAutoUpdater(args.repo_path, args.check_interval)
+    updater = GitAutoUpdater(args.repo_path, args.interval)
     
     if args.once:
         updater.run_once(args.remote)

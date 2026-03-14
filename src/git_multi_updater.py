@@ -210,7 +210,7 @@ def main():
         try:
             return positive_int(value)
         except (TypeError, ValueError):
-            raise argparse.ArgumentTypeError('interval 必须是正整数')
+            raise argparse.ArgumentTypeError('interval must be a positive integer')
     
     parser = argparse.ArgumentParser(description='Git仓库自动更新工具（多仓库版本）')
     parser.add_argument('--config', '-c', default='git_repos.txt',
@@ -232,7 +232,7 @@ def main():
         return
 
     for repo in manager.repos:
-        repo.check_interval = args.check_interval
+        repo.check_interval = args.interval
 
     if args.status:
         manager.print_status()

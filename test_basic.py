@@ -151,7 +151,11 @@ def test_invalid_interval_arguments():
             continue
 
         combined_output = f"{stdout}\n{stderr}"
-        if 'interval 必须是正整数' not in combined_output:
+        expected_markers = [
+            'interval must be a positive integer',
+            'interval 必须是正整数',
+        ]
+        if not any(marker in combined_output for marker in expected_markers):
             print("    Error: missing expected validation message")
             all_passed = False
 
