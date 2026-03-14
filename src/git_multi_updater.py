@@ -212,15 +212,15 @@ def main():
         except (TypeError, ValueError):
             raise argparse.ArgumentTypeError('interval must be a positive integer')
     
-    parser = argparse.ArgumentParser(description='Git仓库自动更新工具（多仓库版本）')
+    parser = argparse.ArgumentParser(description='Git repository auto updater (multi-repo)')
     parser.add_argument('--config', '-c', default='git_repos.txt',
-                       help='配置文件路径，默认为 git_repos.txt')
+                       help='Config file path, default: git_repos.txt')
     parser.add_argument('--interval', '-i', type=parse_interval, default=300,
-                       help='检查间隔（秒，正整数），默认300秒（5分钟）')
+                       help='Check interval in seconds (positive integer), default: 300 (5 min)')
     parser.add_argument('--once', action='store_true',
-                       help='只检查一次，不持续运行')
+                       help='Run one check only, then exit')
     parser.add_argument('--status', '-s', action='store_true',
-                       help='显示所有仓库状态')
+                       help='Print status for all repositories')
     
     args = parser.parse_args()
     

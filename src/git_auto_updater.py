@@ -156,13 +156,13 @@ def main():
         except (TypeError, ValueError):
             raise argparse.ArgumentTypeError('interval must be a positive integer')
     
-    parser = argparse.ArgumentParser(description='Git仓库自动更新工具')
-    parser.add_argument('repo_path', help='本地仓库路径')
-    parser.add_argument('--remote', '-r', help='远程仓库URL（首次克隆时使用）')
+    parser = argparse.ArgumentParser(description='Git repository auto updater')
+    parser.add_argument('repo_path', help='Local repository path')
+    parser.add_argument('--remote', '-r', help='Remote repository URL (used for first clone)')
     parser.add_argument('--interval', '-i', type=parse_interval, default=300,
-                       help='检查间隔（秒，正整数），默认300秒（5分钟）')
+                       help='Check interval in seconds (positive integer), default: 300 (5 min)')
     parser.add_argument('--once', action='store_true',
-                       help='只检查一次，不持续运行')
+                       help='Run one check only, then exit')
     
     args = parser.parse_args()
     
