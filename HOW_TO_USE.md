@@ -4,7 +4,7 @@
 
 ### 1. Clone and Verify
 ```bash
-git clone https://github.com/yourusername/git-auto-updater.git
+git clone https://github.com/nisconder/git-auto-updater.git
 cd git-auto-updater
 python check_env.py
 ```

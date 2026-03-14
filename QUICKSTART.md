@@ -5,7 +5,7 @@
 ### 1. 克隆或下载项目
 
 ```bash
-git clone https://github.com/yourusername/git-auto-updater.git
+git clone https://github.com/nisconder/git-auto-updater.git
 cd git-auto-updater
 ```
 
@@ -71,7 +71,7 @@ git-multi-updater
 A: 按 `Ctrl+C`
 
 ### Q: 如何修改检查频率？
-A: 使用 `--interval` 参数，单位是秒
+A: 使用 `--interval` 参数，单位是秒（必须是正整数）
 ```bash
 git-auto-updater /path/to/repo --interval 600  # 每10分钟检查一次
 ```

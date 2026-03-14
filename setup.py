@@ -11,7 +11,7 @@ setup(
     description="Automatic Git repository update tool",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/git-auto-updater",
+    url="https://github.com/nisconder/git-auto-updater",
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     classifiers=[

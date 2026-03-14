@@ -19,9 +19,9 @@ def test_help_commands():
     print("Testing help commands...")
     
     tests = [
-        (['python', 'check_env.py'], 'Environment check'),
-        (['python', 'src/git_auto_updater.py', '--help'], 'Single repo help'),
-        (['python', 'src/git_multi_updater.py', '--help'], 'Multi repo help'),
+        ([sys.executable, 'check_env.py'], 'Environment check'),
+        ([sys.executable, 'src/git_auto_updater.py', '--help'], 'Single repo help'),
+        ([sys.executable, 'src/git_multi_updater.py', '--help'], 'Multi repo help'),
     ]
     
     all_passed = True
@@ -130,6 +130,34 @@ def test_import():
     return all_passed
 
 
+def test_invalid_interval_arguments():
+    """Test that invalid interval values are rejected"""
+    print("\nTesting interval argument validation...")
+
+    tests = [
+        ([sys.executable, 'src/git_auto_updater.py', 'dummy_repo', '--interval', '0', '--once'], 'Single repo interval=0'),
+        ([sys.executable, 'src/git_auto_updater.py', 'dummy_repo', '--interval', '-1', '--once'], 'Single repo interval=-1'),
+        ([sys.executable, 'src/git_multi_updater.py', '--interval', '0', '--once'], 'Multi repo interval=0'),
+        ([sys.executable, 'src/git_multi_updater.py', '--interval', '-1', '--once'], 'Multi repo interval=-1'),
+    ]
+
+    all_passed = True
+    for cmd, name in tests:
+        success, stdout, stderr = run_command(cmd)
+        status = "PASS" if not success else "FAIL"
+        print(f"  [{status}] {name}")
+        if success:
+            all_passed = False
+            continue
+
+        combined_output = f"{stdout}\n{stderr}"
+        if 'interval 必须是正整数' not in combined_output:
+            print("    Error: missing expected validation message")
+            all_passed = False
+
+    return all_passed
+
+
 def main():
     print("=" * 60)
     print("Git Auto Updater Test Suite")
@@ -141,6 +169,7 @@ def main():
         ("Help commands", test_help_commands),
         ("Configuration", test_config_file),
         ("Python imports", test_import),
+        ("Interval argument validation", test_invalid_interval_arguments),
     ]
     
     results = []

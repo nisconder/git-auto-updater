@@ -15,7 +15,7 @@
 如果你贡献了代码、文档、或其他改进，你可以将你的名字添加到这个列表：
 
 ```markdown
-- Your Name (@username) - Contributions description
+- nisconder (@nisconder) - Project maintainer and core development
 ```
 
 ## Contribution Types

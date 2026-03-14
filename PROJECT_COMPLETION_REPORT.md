@@ -112,7 +112,7 @@ git-auto-updater/              # 项目根目录
 
 1. **克隆仓库**
    ```bash
-   git clone https://github.com/yourusername/git-auto-updater.git
+   git clone https://github.com/nisconder/git-auto-updater.git
    cd git-auto-updater
    ```
 

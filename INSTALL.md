@@ -56,7 +56,7 @@ All checks should pass before proceeding.
    
    Using Git:
    ```bash
-   git clone https://github.com/yourusername/git-auto-updater.git
+   git clone https://github.com/nisconder/git-auto-updater.git
    cd git-auto-updater
    ```
    
@@ -150,7 +150,7 @@ All checks should pass before proceeding.
 
    [Service]
    Type=simple
-   User=yourusername
+   User=nisconder
    WorkingDirectory=/path/to/git-auto-updater
    ExecStart=/usr/bin/python3 /path/to/git-auto-updater/src/git_multi_updater.py
    Restart=always

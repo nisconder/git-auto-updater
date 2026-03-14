@@ -8,7 +8,7 @@
 
 如果你发现了 bug：
 
-1. 检查 [Issues](https://github.com/yourusername/git-auto-updater/issues) 是否已有相关问题
+1. 检查 [Issues](https://github.com/nisconder/git-auto-updater/issues) 是否已有相关问题
 2. 如果没有，创建一个新的 issue，包含：
    - 清晰的标题描述问题
    - 详细的重现步骤
@@ -87,7 +87,7 @@ and provide helpful error messages to users.
 ### 1. 克隆仓库
 
 ```bash
-git clone https://github.com/yourusername/git-auto-updater.git
+git clone https://github.com/nisconder/git-auto-updater.git
 cd git-auto-updater
 ```
 

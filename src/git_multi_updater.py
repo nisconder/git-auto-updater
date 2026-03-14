@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
-import os
 import subprocess
 import time
 from pathlib import Path
 from typing import Optional, List, Tuple
 import threading
 from datetime import datetime
+
+
+def positive_int(value: str) -> int:
+    interval = int(value)
+    if interval <= 0:
+        raise ValueError
+    return interval
 
 
 class GitRepoManager:
@@ -24,14 +30,36 @@ class GitRepoManager:
                 text=True,
                 check=False
             )
-            return result.returncode == 0, result.stdout.strip()
+            output = result.stdout.strip()
+            error = result.stderr.strip()
+            combined_output = "\n".join(part for part in [output, error] if part)
+            return result.returncode == 0, combined_output
         except Exception as e:
             return False, str(e)
 
     def get_remote_commit(self) -> Optional[str]:
-        success, output = self.run_command(['git', 'ls-remote', 'origin', 'HEAD'])
+        remote_ref = self.get_remote_ref()
+        success, output = self.run_command(['git', 'ls-remote', 'origin', remote_ref])
         if success and output:
             return output.split()[0]
+        return None
+
+    def get_remote_ref(self) -> str:
+        branch = self.get_current_branch()
+        if branch:
+            return f"refs/heads/{branch}"
+        return 'HEAD'
+
+    def get_reset_target(self) -> str:
+        branch = self.get_current_branch()
+        if branch:
+            return f"origin/{branch}"
+        return 'origin/HEAD'
+
+    def get_current_branch(self) -> Optional[str]:
+        success, output = self.run_command(['git', 'rev-parse', '--abbrev-ref', 'HEAD'])
+        if success and output and output != 'HEAD':
+            return output
         return None
 
     def get_local_commit(self) -> Optional[str]:
@@ -58,13 +86,14 @@ class GitRepoManager:
 
     def update_repo(self) -> bool:
         self.log("开始更新仓库...")
+        reset_target = self.get_reset_target()
         
         success, output = self.run_command(['git', 'fetch', 'origin'])
         if not success:
             self.log(f"fetch 失败: {output}")
             return False
 
-        success, output = self.run_command(['git', 'reset', '--hard', 'origin/HEAD'])
+        success, output = self.run_command(['git', 'reset', '--hard', reset_target])
         if not success:
             self.log(f"reset 失败: {output}")
             return False
@@ -128,16 +157,19 @@ class MultiRepoManager:
             print(f"配置文件不存在: {self.config_file}")
             return
 
+        self.repos.clear()
         with open(self.config_file, 'r', encoding='utf-8') as f:
-            for line in f:
+            for line_number, line in enumerate(f, start=1):
                 line = line.strip()
                 if not line or line.startswith('#'):
                     continue
                 
-                parts = line.split('|')
+                parts = line.split('|', 1)
                 if len(parts) == 2:
                     local_path, remote_url = parts
                     self.repos.append(GitRepoManager(local_path.strip(), remote_url.strip()))
+                else:
+                    print(f"忽略无效配置行 {line_number}: {line}")
 
     def run_all_once(self) -> None:
         print(f"开始检查 {len(self.repos)} 个仓库...")
@@ -173,12 +205,18 @@ class MultiRepoManager:
 
 def main():
     import argparse
+
+    def parse_interval(value: str) -> int:
+        try:
+            return positive_int(value)
+        except (TypeError, ValueError):
+            raise argparse.ArgumentTypeError('interval 必须是正整数')
     
     parser = argparse.ArgumentParser(description='Git仓库自动更新工具（多仓库版本）')
     parser.add_argument('--config', '-c', default='git_repos.txt',
                        help='配置文件路径，默认为 git_repos.txt')
-    parser.add_argument('--interval', '-i', type=int, default=300,
-                       help='检查间隔（秒），默认300秒（5分钟）')
+    parser.add_argument('--interval', '-i', type=parse_interval, default=300,
+                       help='检查间隔（秒，正整数），默认300秒（5分钟）')
     parser.add_argument('--once', action='store_true',
                        help='只检查一次，不持续运行')
     parser.add_argument('--status', '-s', action='store_true',
