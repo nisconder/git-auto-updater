@@ -1,64 +1,70 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-环境检查脚本
-检查 Git 和 Python 环境是否满足要求
+Environment check script
+Check if Git and Python environment meets requirements
 """
 import sys
 import subprocess
+import io
 from pathlib import Path
+
+# Set UTF-8 encoding for Windows console
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 
 def check_python_version():
-    """检查 Python 版本"""
-    print(f"Python 版本: {sys.version}")
+    """Check Python version"""
+    print(f"Python version: {sys.version}")
     major, minor = sys.version_info[:2]
     if major == 3 and minor >= 8:
-        print("✓ Python 版本满足要求 (>= 3.8)")
+        print("[OK] Python version meets requirements (>= 3.8)")
         return True
     else:
-        print("✗ Python 版本不满足要求，需要 3.8 或更高版本")
+        print("[FAIL] Python version does not meet requirements, need 3.8 or higher")
         return False
 
 
 def check_git():
-    """检查 Git 是否安装"""
+    """Check if Git is installed"""
     try:
         result = subprocess.run(['git', '--version'], capture_output=True, text=True)
         if result.returncode == 0:
-            print(f"✓ Git 版本: {result.stdout.strip()}")
+            print(f"[OK] Git version: {result.stdout.strip()}")
             return True
         else:
-            print("✗ Git 未安装或不在 PATH 中")
+            print("[FAIL] Git is not installed or not in PATH")
             return False
     except FileNotFoundError:
-        print("✗ Git 未安装")
+        print("[FAIL] Git is not installed")
         return False
 
 
 def check_files():
-    """检查必要文件是否存在"""
+    """Check if required files exist"""
     required_files = [
         'src/git_auto_updater.py',
         'src/git_multi_updater.py',
         'git_repos.example.txt',
     ]
     
-    print("\n检查项目文件:")
+    print("\nChecking project files:")
     all_exist = True
     for file in required_files:
         path = Path(file)
         if path.exists():
-            print(f"✓ {file}")
+            print(f"[OK] {file}")
         else:
-            print(f"✗ {file} 不存在")
+            print(f"[FAIL] {file} does not exist")
             all_exist = False
     
     return all_exist
 
 
 def test_script():
-    """测试脚本是否能正常运行"""
-    print("\n测试脚本:")
+    """Test if scripts can run properly"""
+    print("\nTesting scripts:")
     try:
         result = subprocess.run(
             [sys.executable, 'src/git_auto_updater.py', '--help'],
@@ -66,26 +72,26 @@ def test_script():
             text=True
         )
         if result.returncode == 0:
-            print("✓ git_auto_updater.py 可以正常运行")
+            print("[OK] git_auto_updater.py can run properly")
             return True
         else:
-            print("✗ git_auto_updater.py 运行失败")
+            print("[FAIL] git_auto_updater.py failed to run")
             return False
     except Exception as e:
-        print(f"✗ git_auto_updater.py 运行失败: {e}")
+        print(f"[FAIL] git_auto_updater.py failed to run: {e}")
         return False
 
 
 def main():
     print("=" * 60)
-    print("Git Auto Updater 环境检查")
+    print("Git Auto Updater Environment Check")
     print("=" * 60)
     
     checks = [
-        ("Python 版本", check_python_version),
-        ("Git 安装", check_git),
-        ("项目文件", check_files),
-        ("脚本测试", test_script),
+        ("Python version", check_python_version),
+        ("Git installation", check_git),
+        ("Project files", check_files),
+        ("Script test", test_script),
     ]
     
     results = []
@@ -95,12 +101,12 @@ def main():
         results.append((name, result))
     
     print("\n" + "=" * 60)
-    print("检查结果汇总:")
+    print("Check Results Summary:")
     print("=" * 60)
     
     all_passed = True
     for name, result in results:
-        status = "✓ 通过" if result else "✗ 失败"
+        status = "[PASS]" if result else "[FAIL]"
         print(f"{name}: {status}")
         if not result:
             all_passed = False
@@ -108,13 +114,13 @@ def main():
     print("=" * 60)
     
     if all_passed:
-        print("\n✓ 所有检查通过！你可以开始使用 Git Auto Updater 了")
-        print("\n快速开始:")
-        print("  1. 查看 QUICKSTART.md 了解基本用法")
-        print("  2. 查看 README.md 了解完整功能")
+        print("\n[OK] All checks passed! You can start using Git Auto Updater")
+        print("\nQuick Start:")
+        print("  1. Check QUICKSTART.md for basic usage")
+        print("  2. Check README.md for full features")
         return 0
     else:
-        print("\n✗ 部分检查失败，请解决上述问题后重试")
+        print("\n[FAIL] Some checks failed, please fix the issues above and retry")
         return 1
 
 
