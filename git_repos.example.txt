@@ -1,0 +1,25 @@
+# Git仓库配置文件示例
+# 
+# 配置格式：本地路径|远程仓库URL
+# 
+# 注意：
+# 1. 使用绝对路径
+# 2. 每行配置一个仓库
+# 3. 使用 | 符号分隔本地路径和远程URL
+# 4. 以 # 开头的行是注释
+# 5. 空行会被忽略
+#
+# 使用步骤：
+# 1. 复制此文件为 git_repos.txt
+# 2. 删除或修改下面的示例配置
+# 3. 添加你自己的仓库配置
+
+# 示例配置（请根据实际情况修改）：
+
+# Windows 路径示例
+# C:\Users\yourname\repos\project1|https://github.com/username/project1.git
+# C:\Users\yourname\repos\project2|https://github.com/username/project2.git
+
+# Linux/Mac 路径示例
+# /home/username/repos/project1|https://github.com/username/project1.git
+# /home/username/repos/project2|https://github.com/username/project2.git
