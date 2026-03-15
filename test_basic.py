@@ -162,6 +162,40 @@ def test_invalid_interval_arguments():
     return all_passed
 
 
+def test_identity_write_guard():
+    """Test that tools never mutate git user identity settings"""
+    print("\nTesting git identity safety guard...")
+
+    import sys
+    src_path = Path('src')
+    if str(src_path) not in sys.path:
+        sys.path.insert(0, str(src_path))
+
+    from git_auto_updater import GitAutoUpdater
+    from git_multi_updater import GitRepoManager
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_path = Path(temp_dir)
+
+        single_updater = GitAutoUpdater(str(temp_path))
+        single_ok, single_output = single_updater.run_command([
+            'git', 'config', 'user.name', 'should-not-be-set'
+        ], cwd=temp_path)
+
+        multi_updater = GitRepoManager(str(temp_path), 'https://example.com/repo.git')
+        multi_ok, multi_output = multi_updater.run_command([
+            'git', 'config', '--global', 'user.email', 'should-not-be-set@example.com'
+        ], cwd=temp_path)
+
+    single_passed = (not single_ok) and ('禁止' in single_output)
+    multi_passed = (not multi_ok) and ('禁止' in multi_output)
+
+    print(f"  [{'PASS' if single_passed else 'FAIL'}] Single repo identity write is blocked")
+    print(f"  [{'PASS' if multi_passed else 'FAIL'}] Multi repo identity write is blocked")
+
+    return single_passed and multi_passed
+
+
 def main():
     print("=" * 60)
     print("Git Auto Updater Test Suite")
@@ -174,6 +208,7 @@ def main():
         ("Configuration", test_config_file),
         ("Python imports", test_import),
         ("Interval argument validation", test_invalid_interval_arguments),
+        ("Git identity safety guard", test_identity_write_guard),
     ]
     
     results = []

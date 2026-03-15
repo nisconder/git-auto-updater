@@ -21,7 +21,29 @@ class GitRepoManager:
         self.check_interval = check_interval
         self.current_commit = None
 
+    @staticmethod
+    def _is_identity_write_command(command: list[str]) -> bool:
+        if len(command) < 2:
+            return False
+        if command[0] != 'git' or command[1] != 'config':
+            return False
+
+        tokens = [part.lower() for part in command[2:]]
+        has_identity_key = any(token in ('user.name', 'user.email') for token in tokens)
+        if not has_identity_key:
+            return False
+
+        read_only_flags = {
+            '--get', '--get-all', '--get-regexp', '--list', '-l',
+            '--show-origin', '--show-scope', '--name-only', '--null', '-z'
+        }
+        is_read_only = any(token in read_only_flags for token in tokens)
+        return not is_read_only
+
     def run_command(self, command: list[str], cwd: Optional[Path] = None) -> Tuple[bool, str]:
+        # Safety guard: never mutate user commit identity from this tool.
+        if self._is_identity_write_command(command):
+            return False, "安全保护：禁止通过本工具修改 git user.name/user.email，请手动执行 git config。"
         try:
             result = subprocess.run(
                 command,
