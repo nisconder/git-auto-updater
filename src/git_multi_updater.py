@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-import subprocess
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Optional, List, Tuple
-import threading
+from typing import List
 from datetime import datetime
+
+from git_updater_core import GitUpdaterCore
 
 
 def positive_int(value: str) -> int:
@@ -14,165 +15,21 @@ def positive_int(value: str) -> int:
     return interval
 
 
-class GitRepoManager:
+class GitRepoManager(GitUpdaterCore):
     def __init__(self, local_path: str, remote_url: str, check_interval: int = 300):
-        self.local_path = Path(local_path)
-        self.remote_url = remote_url
-        self.check_interval = check_interval
-        self.current_commit = None
-
-    @staticmethod
-    def _is_identity_write_command(command: list[str]) -> bool:
-        if len(command) < 2:
-            return False
-        if command[0] != 'git' or command[1] != 'config':
-            return False
-
-        tokens = [part.lower() for part in command[2:]]
-        has_identity_key = any(token in ('user.name', 'user.email') for token in tokens)
-        if not has_identity_key:
-            return False
-
-        read_only_flags = {
-            '--get', '--get-all', '--get-regexp', '--list', '-l',
-            '--show-origin', '--show-scope', '--name-only', '--null', '-z'
-        }
-        is_read_only = any(token in read_only_flags for token in tokens)
-        return not is_read_only
-
-    def run_command(self, command: list[str], cwd: Optional[Path] = None) -> Tuple[bool, str]:
-        # Safety guard: never mutate user commit identity from this tool.
-        if self._is_identity_write_command(command):
-            return False, "安全保护：禁止通过本工具修改 git user.name/user.email，请手动执行 git config。"
-        try:
-            result = subprocess.run(
-                command,
-                cwd=cwd or self.local_path,
-                capture_output=True,
-                text=True,
-                check=False
-            )
-            output = result.stdout.strip()
-            error = result.stderr.strip()
-            combined_output = "\n".join(part for part in [output, error] if part)
-            return result.returncode == 0, combined_output
-        except Exception as e:
-            return False, str(e)
-
-    def get_remote_commit(self) -> Optional[str]:
-        remote_ref = self.get_remote_ref()
-        success, output = self.run_command(['git', 'ls-remote', 'origin', remote_ref])
-        if success and output:
-            return output.split()[0]
-        return None
-
-    def get_remote_ref(self) -> str:
-        branch = self.get_current_branch()
-        if branch:
-            return f"refs/heads/{branch}"
-        return 'HEAD'
-
-    def get_reset_target(self) -> str:
-        branch = self.get_current_branch()
-        if branch:
-            return f"origin/{branch}"
-        return 'origin/HEAD'
-
-    def get_current_branch(self) -> Optional[str]:
-        success, output = self.run_command(['git', 'rev-parse', '--abbrev-ref', 'HEAD'])
-        if success and output and output != 'HEAD':
-            return output
-        return None
-
-    def get_local_commit(self) -> Optional[str]:
-        success, output = self.run_command(['git', 'rev-parse', 'HEAD'])
-        if success and output:
-            return output
-        return None
-
-    def check_and_update(self) -> bool:
-        if not self.local_path.exists():
-            return False
-
-        remote_commit = self.get_remote_commit()
-        local_commit = self.get_local_commit()
-
-        if not remote_commit or not local_commit:
-            return False
-
-        if remote_commit != local_commit:
-            self.log(f"检测到更新: {local_commit[:8]} -> {remote_commit[:8]}")
-            return self.update_repo()
-        
-        return False
-
-    def update_repo(self) -> bool:
-        self.log("开始更新仓库...")
-        reset_target = self.get_reset_target()
-        
-        success, output = self.run_command(['git', 'fetch', 'origin'])
-        if not success:
-            self.log(f"fetch 失败: {output}")
-            return False
-
-        success, output = self.run_command(['git', 'reset', '--hard', reset_target])
-        if not success:
-            self.log(f"reset 失败: {output}")
-            return False
-
-        success, output = self.run_command(['git', 'clean', '-fd'])
-        if not success:
-            self.log(f"clean 失败: {output}")
-            return False
-
-        self.log("仓库更新成功")
-        return True
-
-    def clone_if_not_exists(self) -> bool:
-        if not self.local_path.exists():
-            self.log(f"仓库不存在，开始克隆: {self.remote_url}")
-            parent_dir = self.local_path.parent
-            
-            if not parent_dir.exists():
-                parent_dir.mkdir(parents=True)
-            
-            success, output = self.run_command([
-                'git', 'clone', self.remote_url, str(self.local_path)
-            ], cwd=parent_dir)
-            
-            if success:
-                self.log("克隆成功")
-                return True
-            else:
-                self.log(f"克隆失败: {output}")
-                return False
-        return False
+        super().__init__(local_path, remote_url=remote_url, check_interval=check_interval, logger=self.log)
 
     def log(self, message: str) -> None:
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         repo_name = self.local_path.name
         print(f"[{timestamp}] [{repo_name}] {message}")
 
-    def run_once(self) -> None:
-        self.clone_if_not_exists()
-        
-        if self.local_path.exists():
-            self.check_and_update()
-
-    def run_forever(self) -> None:
-        self.clone_if_not_exists()
-        
-        while True:
-            if self.local_path.exists():
-                self.check_and_update()
-            time.sleep(self.check_interval)
-
 
 class MultiRepoManager:
-    def __init__(self, config_file: str):
+    def __init__(self, config_file: str, max_workers: int = 4):
         self.config_file = Path(config_file)
         self.repos: List[GitRepoManager] = []
-        self.threads: List[threading.Thread] = []
+        self.max_workers = max_workers
 
     def load_config(self) -> None:
         if not self.config_file.exists():
@@ -195,20 +52,29 @@ class MultiRepoManager:
 
     def run_all_once(self) -> None:
         print(f"开始检查 {len(self.repos)} 个仓库...")
-        for repo in self.repos:
-            repo.run_once()
+        worker_count = max(1, min(self.max_workers, len(self.repos)))
+
+        with ThreadPoolExecutor(max_workers=worker_count) as executor:
+            future_map = {executor.submit(repo.run_once): repo for repo in self.repos}
+            for future in as_completed(future_map):
+                repo = future_map[future]
+                try:
+                    future.result()
+                except Exception as e:
+                    print(f"[{repo.local_path.name}] 任务执行异常: {e}")
 
     def run_all_forever(self) -> None:
-        print(f"开始监控 {len(self.repos)} 个仓库...")
-        
-        for repo in self.repos:
-            thread = threading.Thread(target=repo.run_forever, daemon=True)
-            thread.start()
-            self.threads.append(thread)
+        print(f"开始监控 {len(self.repos)} 个仓库（最大并发线程: {self.max_workers}）...")
+        if not self.repos:
+            return
+
+        interval = min(repo.check_interval for repo in self.repos)
 
         try:
             while True:
-                time.sleep(1)
+                self.run_all_once()
+                print(f"等待 {interval} 秒后再次检查...")
+                time.sleep(interval)
         except KeyboardInterrupt:
             print("\n停止监控...")
 
@@ -243,10 +109,12 @@ def main():
                        help='Run one check only, then exit')
     parser.add_argument('--status', '-s', action='store_true',
                        help='Print status for all repositories')
+    parser.add_argument('--workers', '-w', type=parse_interval, default=4,
+                       help='Max worker threads for multi-repo checks (positive integer), default: 4')
     
     args = parser.parse_args()
     
-    manager = MultiRepoManager(args.config)
+    manager = MultiRepoManager(args.config, max_workers=args.workers)
     manager.load_config()
 
     if not manager.repos:

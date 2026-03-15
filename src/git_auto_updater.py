@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-import subprocess
 import time
 from pathlib import Path
 from typing import Optional
+
+from git_updater_core import GitUpdaterCore
 
 
 def positive_int(value: str) -> int:
@@ -14,138 +15,29 @@ def positive_int(value: str) -> int:
 class GitAutoUpdater:
     def __init__(self, repo_path: str, check_interval: int = 300):
         self.repo_path = Path(repo_path)
-        self.check_interval = check_interval
-        self.current_commit = None
-
-    @staticmethod
-    def _is_identity_write_command(command: list[str]) -> bool:
-        if len(command) < 2:
-            return False
-        if command[0] != 'git' or command[1] != 'config':
-            return False
-
-        tokens = [part.lower() for part in command[2:]]
-        has_identity_key = any(token in ('user.name', 'user.email') for token in tokens)
-        if not has_identity_key:
-            return False
-
-        read_only_flags = {
-            '--get', '--get-all', '--get-regexp', '--list', '-l',
-            '--show-origin', '--show-scope', '--name-only', '--null', '-z'
-        }
-        is_read_only = any(token in read_only_flags for token in tokens)
-        return not is_read_only
+        self.core = GitUpdaterCore(repo_path, check_interval=check_interval, logger=self._log)
 
     def run_command(self, command: list[str], cwd: Optional[Path] = None) -> tuple[bool, str]:
-        # Safety guard: never mutate user commit identity from this tool.
-        if self._is_identity_write_command(command):
-            return False, "安全保护：禁止通过本工具修改 git user.name/user.email，请手动执行 git config。"
-        try:
-            result = subprocess.run(
-                command,
-                cwd=cwd or self.repo_path,
-                capture_output=True,
-                text=True,
-                check=False
-            )
-            output = result.stdout.strip()
-            error = result.stderr.strip()
-            combined_output = "\n".join(part for part in [output, error] if part)
-            return result.returncode == 0, combined_output
-        except Exception as e:
-            return False, str(e)
+        return self.core.run_command(command, cwd=cwd)
 
-    def get_remote_commit(self) -> Optional[str]:
-        remote_ref = self.get_remote_ref()
-        success, output = self.run_command([
-            'git', 'ls-remote', 'origin', remote_ref
-        ])
-        if success and output:
-            return output.split()[0]
-        return None
-
-    def get_remote_ref(self) -> str:
-        branch = self.get_current_branch()
-        if branch:
-            return f"refs/heads/{branch}"
-        return 'HEAD'
-
-    def get_reset_target(self) -> str:
-        branch = self.get_current_branch()
-        if branch:
-            return f"origin/{branch}"
-        return 'origin/HEAD'
+    def _log(self, message: str) -> None:
+        print(message)
 
     def get_current_branch(self) -> Optional[str]:
-        success, output = self.run_command([
-            'git', 'rev-parse', '--abbrev-ref', 'HEAD'
-        ])
-        if success and output and output != 'HEAD':
-            return output
-        return None
+        return self.core.get_current_branch()
 
     def get_local_commit(self) -> Optional[str]:
-        success, output = self.run_command([
-            'git', 'rev-parse', 'HEAD'
-        ])
-        if success and output:
-            return output
-        return None
+        return self.core.get_local_commit()
 
     def check_and_update(self) -> bool:
-        remote_commit = self.get_remote_commit()
-        local_commit = self.get_local_commit()
-
-        if not remote_commit or not local_commit:
-            print("无法获取提交信息")
-            return False
-
-        if remote_commit != local_commit:
-            print(f"检测到更新: {local_commit[:8]} -> {remote_commit[:8]}")
-            return self.update_repo()
-        
-        print("没有更新")
-        return False
+        return self.core.check_and_update()
 
     def update_repo(self) -> bool:
-        print("开始更新仓库...")
-        reset_target = self.get_reset_target()
-        
-        success, output = self.run_command(['git', 'fetch', 'origin'])
-        if not success:
-            print(f"fetch 失败: {output}")
-            return False
-
-        success, output = self.run_command(['git', 'reset', '--hard', reset_target])
-        if not success:
-            print(f"reset 失败: {output}")
-            return False
-
-        success, output = self.run_command(['git', 'clean', '-fd'])
-        if not success:
-            print(f"clean 失败: {output}")
-            return False
-
-        print("仓库更新成功")
-        return True
+        return self.core.update_repo()
 
     def clone_if_not_exists(self, remote_url: str) -> bool:
-        if not self.repo_path.exists():
-            print(f"仓库不存在，开始克隆: {remote_url}")
-            parent_dir = self.repo_path.parent
-            parent_dir.mkdir(parents=True, exist_ok=True)
-            
-            success, output = self.run_command([
-                'git', 'clone', remote_url, str(self.repo_path)
-            ], cwd=parent_dir)
-            
-            if success:
-                print("克隆成功")
-                return True
-            else:
-                print(f"克隆失败: {output}")
-                return False
-        return False
+        self.core.remote_url = remote_url
+        return self.core.clone_if_not_exists()
 
     def run_once(self, remote_url: Optional[str] = None) -> None:
         if remote_url:
@@ -165,8 +57,8 @@ class GitAutoUpdater:
                 self.check_and_update()
             else:
                 print(f"仓库路径不存在: {self.repo_path}，请提供 --remote 用于首次克隆")
-            print(f"等待 {self.check_interval} 秒后再次检查...")
-            time.sleep(self.check_interval)
+            print(f"等待 {self.core.check_interval} 秒后再次检查...")
+            time.sleep(self.core.check_interval)
 
 
 def main():
