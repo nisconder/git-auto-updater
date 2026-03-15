@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 from pathlib import Path
 
 readme_file = Path(__file__).parent / "README.md"
@@ -13,7 +13,11 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/nisconder/git-auto-updater",
     package_dir={"": "src"},
-    packages=find_packages(where="src"),
+    py_modules=[
+        "git_auto_updater",
+        "git_multi_updater",
+        "git_updater_core",
+    ],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
