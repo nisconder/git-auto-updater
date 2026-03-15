@@ -1,45 +1,42 @@
-# Changelog
+# 更新日志
 
-All notable changes to Git Auto Updater will be documented in this file.
+本文档记录 Git Auto Updater 的重要变更。
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+格式参考 Keep a Changelog，版本号遵循 Semantic Versioning。
 
-## [Unreleased]
+## [未发布]
 
 ## [1.0.0] - 2024-01-15
 
-### Added
-- Single repository auto-update tool (`git_auto_updater.py`)
-- Multiple repositories management tool (`git_multi_updater.py`)
-- Automatic detection of remote repository changes
-- Configurable check interval
-- Multi-threaded concurrent monitoring for multiple repos
-- Detailed logging with timestamps
-- Pure Python implementation with no external dependencies
-- Cross-platform support (Windows/Linux/Mac)
-- Comprehensive documentation (README, QUICKSTART, INSTALL, examples)
-- Environment check script for easy troubleshooting
-- Example configuration file for multi-repo setup
-- setup.py for easy installation as system commands
-- MIT License
+### 新增
+- 单仓库自动更新工具（git_auto_updater.py）
+- 多仓库管理工具（git_multi_updater.py）
+- 自动检测远程仓库更新
+- 可配置检查间隔
+- 多仓库并发监控
+- 带时间戳的详细日志
+- 纯 Python 实现，无外部依赖
+- 跨平台支持（Windows/Linux/Mac）
+- 完整文档与示例
+- 环境检查脚本
+- 多仓库配置示例文件
+- setup.py 安装配置
+- MIT 许可证
 
-### Features
-- Auto-clone repositories if they don't exist
-- Force sync strategy (fetch + reset + clean) to ensure consistency
-- Status display for all monitored repositories
-- One-time check mode for manual updates
-- Custom configuration file support
-- Support for both SSH and HTTPS repository URLs
+### 特性
+- 仓库不存在时自动克隆
+- 采用 fetch + reset + clean 的强制同步策略
+- 支持一次性检查模式
+- 支持自定义配置文件
+- 支持 SSH 与 HTTPS 仓库地址
 
-### Documentation
-- Main README with complete feature overview
-- Quick start guide for 5-minute setup
-- Detailed installation guide with multiple methods
-- Usage examples with common scenarios
-- Troubleshooting section for common issues
+### 文档
+- 主文档（README）
+- 快速开始（QUICK_START）
+- 安装指南（INSTALL）
+- 使用示例（examples/USAGE_EXAMPLES.md）
+- 常见问题与排障说明
 
-### Initial Release
-- First stable release of Git Auto Updater
-- Fully functional single and multi-repo support
-- Production-ready with comprehensive testing
+### 首次发布
+- Git Auto Updater 首个稳定版本
+- 单仓库与多仓库功能可用

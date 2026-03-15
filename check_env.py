@@ -116,7 +116,7 @@ def main():
     if all_passed:
         print("\n[OK] All checks passed! You can start using Git Auto Updater")
         print("\nQuick Start:")
-        print("  1. Check QUICKSTART.md for basic usage")
+        print("  1. Check QUICK_START.md for basic usage")
         print("  2. Check README.md for full features")
         return 0
     else:
@@ -126,3 +126,4 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
+

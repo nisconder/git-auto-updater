@@ -63,13 +63,13 @@ def test_documentation():
     
     doc_files = [
         'README.md',
-        'QUICKSTART.md',
+        'QUICK_START.md',
         'INSTALL.md',
         'CHANGELOG.md',
         'CONTRIBUTING.md',
         'AUTHORS.md',
         'SECURITY.md',
-        'examples/usage_examples.md',
+        'examples/USAGE_EXAMPLES.md',
     ]
     
     all_exist = True
@@ -204,3 +204,4 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
+

@@ -1,327 +1,97 @@
-# Installation Guide
+# 安装指南
 
-详细安装指南 - Git Auto Updater
+本文档介绍 Git Auto Updater 的安装方式与验证步骤。
 
-## Table of Contents
+## 前置要求
 
-- [Prerequisites](#prerequisites)
-- [Installation Methods](#installation-methods)
-- [Verifying Installation](#verifying-installation)
-- [Troubleshooting](#troubleshooting)
+- Python 3.8 或更高版本
+- Git 已正确安装
 
-## Prerequisites
+检查命令：
 
-### Required Software
+```bash
+python --version
+git --version
+```
 
-1. **Python 3.8 or higher**
-   
-   **Check installation:**
-   ```bash
-   python --version
-   # or
-   python3 --version
-   ```
-   
-   **If not installed:**
-   - Windows: Download from [python.org](https://www.python.org/downloads/)
-   - Linux: `sudo apt install python3`
-   - Mac: `brew install python`
+建议先执行环境检查：
 
-2. **Git**
-   
-   **Check installation:**
-   ```bash
-   git --version
-   ```
-   
-   **If not installed:**
-   - Windows: Download from [git-scm.com](https://git-scm.com/download/win)
-   - Linux: `sudo apt install git`
-   - Mac: `brew install git`
-
-### Verifying Prerequisites
-
-Run the environment check script:
 ```bash
 python check_env.py
 ```
 
-All checks should pass before proceeding.
+## 安装方式
 
-## Installation Methods
-
-### Method 1: Direct Download (Simplest)
-
-1. **Download the project**
-   
-   Using Git:
-   ```bash
-   git clone https://github.com/nisconder/git-auto-updater.git
-   cd git-auto-updater
-   ```
-   
-   Or download as ZIP from GitHub and extract.
-
-2. **Run directly**
-   
-   ```bash
-   # Single repo
-   python src/git_auto_updater.py /path/to/repo --remote https://github.com/user/repo.git
-   
-   # Multiple repos
-   python src/git_multi_updater.py
-   ```
-
-### Method 2: System-wide Installation (Recommended for Frequent Use)
-
-1. **Clone or download the project** (same as Method 1)
-
-2. **Install using pip**
-   
-   ```bash
-   pip install -e .
-   ```
-   
-   The `-e` flag installs in "editable" mode, allowing you to modify the code if needed.
-
-3. **Use as system commands**
-   
-   ```bash
-   git-auto-updater /path/to/repo
-   git-multi-updater
-   ```
-
-4. **Uninstall** (if needed)
-   ```bash
-   pip uninstall git-auto-updater
-   ```
-
-### Method 3: Virtual Environment (Best Practice)
-
-1. **Create virtual environment**
-   ```bash
-   python -m venv venv
-   ```
-
-2. **Activate virtual environment**
-   
-   **Windows:**
-   ```bash
-   venv\Scripts\activate
-   ```
-   
-   **Linux/Mac:**
-   ```bash
-   source venv/bin/activate
-   ```
-
-3. **Install in virtual environment**
-   ```bash
-   pip install -e .
-   ```
-
-4. **Deactivate** (when done)
-   ```bash
-   deactivate
-   ```
-
-### Method 4: Windows Service (Auto-start on Boot)
-
-1. **Create a batch script** (`start_updater.bat`):
-   ```batch
-   @echo off
-   cd C:\path\to\git-auto-updater
-   git-multi-updater
-   ```
-
-2. **Install as Windows Service** (using [NSSM](https://nssm.cc/)):
-   ```bash
-   nssm install GitAutoUpdater C:\path\to\start_updater.bat
-   nssm start GitAutoUpdater
-   ```
-
-### Method 5: Systemd Service (Linux)
-
-1. **Create service file** `/etc/systemd/system/git-auto-updater.service`:
-   ```ini
-   [Unit]
-   Description=Git Auto Updater Service
-   After=network.target
-
-   [Service]
-   Type=simple
-   User=nisconder
-   WorkingDirectory=/path/to/git-auto-updater
-   ExecStart=/usr/bin/python3 /path/to/git-auto-updater/src/git_multi_updater.py
-   Restart=always
-
-   [Install]
-   WantedBy=multi-user.target
-   ```
-
-2. **Enable and start service**
-   ```bash
-   sudo systemctl daemon-reload
-   sudo systemctl enable git-auto-updater
-   sudo systemctl start git-auto-updater
-   ```
-
-## Verifying Installation
-
-### Quick Test
+### 方式一：直接使用（推荐）
 
 ```bash
-# Test single repo command
-git-auto-updater --help
-# or
+git clone https://github.com/nisconder/git-auto-updater.git
+cd git-auto-updater
 python src/git_auto_updater.py --help
-
-# Test multi-repo command
-git-multi-updater --help
-# or
 python src/git_multi_updater.py --help
 ```
 
-### Full Environment Check
+### 方式二：安装为命令
+
+```bash
+git clone https://github.com/nisconder/git-auto-updater.git
+cd git-auto-updater
+pip install -e .
+git-auto-updater --help
+git-multi-updater --help
+```
+
+### 方式三：虚拟环境安装（推荐生产使用）
+
+```bash
+python -m venv .venv
+# Windows
+.\.venv\Scripts\activate
+# Linux/Mac
+source .venv/bin/activate
+pip install -e .
+```
+
+## 安装验证
+
+### 快速验证
 
 ```bash
 python check_env.py
+python test_basic.py
 ```
 
-Expected output:
-```
-============================================================
-Git Auto Updater Environment Check
-============================================================
-
-Python version: 3.x.x
-[OK] Python version meets requirements (>= 3.8)
-
-Git installation:
-[OK] Git version: git version 2.x.x
-
-Project files:
-[OK] src/git_auto_updater.py
-[OK] src/git_multi_updater.py
-[OK] git_repos.example.txt
-
-Script test:
-[OK] git_auto_updater.py can run properly
-
-============================================================
-Check Results Summary:
-============================================================
-Python version: [PASS]
-Git installation: [PASS]
-Project files: [PASS]
-Script test: [PASS]
-============================================================
-
-[OK] All checks passed! You can start using Git Auto Updater
-```
-
-### Test with a Real Repository
+### 真实仓库验证
 
 ```bash
-# Single repo test
-git-auto-updater /tmp/test-repo --remote https://github.com/octocat/Hello-World.git --once
+# 单仓库一次性检查
+git-auto-updater /path/to/repo --remote https://github.com/user/repo.git --once
 
-# Multi-repo test
+# 多仓库模式
 cp git_repos.example.txt git_repos.txt
-# Edit git_repos.txt to add a test repository
-git-multi-updater --status
+# 编辑 git_repos.txt 后运行
+python src/git_multi_updater.py --status
 ```
 
-## Troubleshooting
+## 常见问题
 
-### Common Issues
+### 找不到命令
 
-#### 1. "Command not found" error
+- 确认当前 Python 环境与安装环境一致。
+- 如果使用 `pip install -e .`，请检查 Scripts/bin 目录是否在 PATH 中。
 
-**Symptom:**
-```
-'git-auto-updater' is not recognized as an internal or external command
-```
+### 模块导入失败
 
-**Solution:**
-- Make sure you installed with `pip install -e .`
-- Check if Python Scripts directory is in PATH
-- Use full path: `python src/git_auto_updater.py`
+- 在项目根目录执行命令。
+- 重新执行 `pip install -e .`。
 
-#### 2. "No module named" error
+### Git 认证失败
 
-**Symptom:**
-```
-ModuleNotFoundError: No module named 'xxx'
-```
+- 优先使用 SSH Key 或 Git 凭证助手。
+- 避免在脚本中硬编码账号密码。
 
-**Solution:**
-- Reinstall: `pip install -e .`
-- Check Python version (needs 3.8+)
-- Use virtual environment
+## 下一步
 
-#### 3. Permission denied
-
-**Symptom:**
-```
-PermissionError: [Errno 13] Permission denied
-```
-
-**Solution:**
-- Run as administrator/sudo
-- Check file permissions
-- Ensure write access to repository paths
-
-#### 4. Git authentication errors
-
-**Symptom:**
-```
-fatal: could not read Username for 'https://github.com'
-```
-
-**Solution:**
-- Configure Git credentials:
-  ```bash
-  git config --global credential.helper store
-  ```
-- Or use SSH URLs instead of HTTPS
-- Or use personal access tokens
-
-#### 5. Encoding issues on Windows
-
-**Symptom:**
-```
-UnicodeDecodeError or garbled text
-```
-
-**Solution:**
-- Use Python 3.8+
-- Run environment check: `python check_env.py`
-- Check if terminal supports UTF-8
-
-### Getting Help
-
-If you encounter issues not covered here:
-
-1. Check the [README.md](README.md) for usage information
-2. Check [examples/usage_examples.md](examples/usage_examples.md) for detailed examples
-3. Run `python check_env.py` to diagnose issues
-4. Submit an issue on GitHub with:
-   - Your operating system
-   - Python version
-   - Git version
-   - Error message
-   - Steps to reproduce
-
-## Next Steps
-
-After successful installation:
-
-1. Read [QUICKSTART.md](QUICKSTART.md) for a quick start
-2. Read [README.md](README.md) for complete features
-3. Check [examples/usage_examples.md](examples/usage_examples.md) for detailed examples
-4. Configure your repositories and start monitoring!
-
----
-
-**Need help?** Submit an issue on GitHub or check the documentation.
+- 阅读 [HOW_TO_USE.md](HOW_TO_USE.md) 了解基础流程
+- 阅读 [examples/USAGE_EXAMPLES.md](examples/USAGE_EXAMPLES.md) 查看常见场景
+- 阅读 [VERIFICATION.md](VERIFICATION.md) 做完整验证

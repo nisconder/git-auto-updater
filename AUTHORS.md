@@ -1,37 +1,31 @@
-# Authors and Contributors
+# 作者与贡献者
 
-## Maintainer
+## 维护者
 
 - Git Auto Updater Team
 
-## Contributors
+## 贡献者
 
-感谢所有为 Git Auto Updater 做出贡献的人！
+感谢所有为 Git Auto Updater 做出贡献的人。
 
-如果你想成为贡献者，请查看 [CONTRIBUTING.md](CONTRIBUTING.md) 了解如何参与。
+如果你想成为贡献者，请查看 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
-## How to Add Yourself
+## 如何添加自己
 
-如果你贡献了代码、文档、或其他改进，你可以将你的名字添加到这个列表：
+如果你贡献了代码、文档或其他改进，可以将你的名字添加到下面：
 
 ```markdown
-- nisconder (@nisconder) - Project maintainer and core development
+- nisconder (@nisconder) - 项目维护与核心开发
 ```
 
-## Contribution Types
+## 贡献类型
 
-我们感谢各种类型的贡献：
+我们感谢以下贡献：
 
-- 💻 代码贡献
-- 📝 文档改进
-- 🐛 Bug 报告
-- 💡 功能建议
-- 🌐 翻译
-- 📣 推广
-- 🎨 设计改进
-- ✅ 测试
-- 💬 社区支持
-
----
-
-**谢谢你支持 Git Auto Updater！** ❤️
+- 代码贡献
+- 文档改进
+- Bug 报告
+- 功能建议
+- 翻译与本地化
+- 测试与质量保障
+- 社区支持

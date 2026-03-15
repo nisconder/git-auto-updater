@@ -31,15 +31,15 @@ git-auto-updater/              # 项目根目录
 │
 ├── 文档 (9个)
 │   ├── README.md                    # 主文档 (6.1K)
-│   ├── QUICKSTART.md                # 快速开始 (1.8K)
+│   ├── QUICK_START.md                # 快速开始 (1.8K)
 │   ├── INSTALL.md                   # 安装指南 (6.7K)
 │   ├── VERIFICATION.md              # 验证指南 (5.2K)
 │   ├── PROJECT_OVERVIEW.md          # 项目概览 (4.7K)
 │   ├── CHANGELOG.md                 # 变更日志 (1.7K)
 │   ├── CONTRIBUTING.md              # 贡献指南 (4.4K)
 │   ├── AUTHORS.md                   # 贡献者 (709B)
-│   ├── SECURITY.md                  # 安全政策 (2.4K)
-│   └── examples/usage_examples.md   # 使用示例 (7.5K)
+│   ├── SECURITY.md                  # 安全策略 (2.4K)
+│   └── examples/USAGE_EXAMPLES.md   # 使用示例 (7.5K)
 │
 ├── 配置和构建 (3个)
 │   ├── .gitignore                   # Git 忽略规则
@@ -77,7 +77,7 @@ git-auto-updater/              # 项目根目录
 ✅ 项目概览
 ✅ 使用示例
 ✅ 贡献指南
-✅ 安全政策
+✅ 安全策略
 ✅ 变更日志
 
 ### 开发工具
@@ -205,7 +205,7 @@ a70bf77 Initial commit: Git Auto Updater v1.0.0
 ## 下一步建议
 
 对于用户：
-1. 阅读 QUICKSTART.md 快速上手
+1. 阅读 QUICK_START.md 快速上手
 2. 查看 README.md 了解完整功能
 3. 运行 check_env.py 验证环境
 4. 根据需求配置仓库
@@ -233,3 +233,5 @@ Git Auto Updater 项目已经完全开发完成，所有功能已实现并经过
 **项目完成时间**: 2024-01-15
 **项目状态**: ✅ 已完成
 **可以立即使用**: 是
+
+

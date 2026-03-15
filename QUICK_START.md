@@ -85,9 +85,10 @@ A: Windows、Linux、Mac 都支持
 ## 下一步
 
 - 查看 [README.md](README.md) 了解完整功能
-- 查看 [examples/usage_examples.md](examples/usage_examples.md) 了解更多使用示例
+- 查看 [USAGE_EXAMPLES.md](examples/USAGE_EXAMPLES.md) 了解更多使用示例
 - 根据你的需求修改配置
 
 ## 需要帮助？
 
 如有问题，请提交 Issue 或查看文档。
+

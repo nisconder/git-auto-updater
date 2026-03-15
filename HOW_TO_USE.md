@@ -45,7 +45,7 @@ python src/git_multi_updater.py
 ## 需要帮助？
 
 - 阅读 [README.md](README.md) 获取完整文档
-- 查看 [QUICKSTART.md](QUICKSTART.md) 获取更详细示例
+- 查看 [QUICK_START.md](QUICK_START.md) 获取更详细示例
 - 运行 `python check_env.py` 检查本机环境
 
 ## 安装为命令（可选）
@@ -60,3 +60,5 @@ git-multi-updater
 ---
 
 **现在就可以开始自动监控你的仓库了。**
+
+
